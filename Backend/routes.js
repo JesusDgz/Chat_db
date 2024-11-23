@@ -12,27 +12,26 @@ const openaiApiKey = process.env.OPENAI_API_KEY;
 router.post('/consultar-db', async (req, res) => {
   const { query } = req.body;  // La consulta que el usuario desea hacer
   
-  // Contexto sobre la base de datos
+  // Contexto sobre la base de datos MongoDB
   const context = `
-    -- Esquema de base de datos
-    -- Tabla: clientes
-    CREATE TABLE clientes (
-        id_cliente INT PRIMARY KEY,
-        nombre VARCHAR(100),
-        email VARCHAR(100),
-        telefono VARCHAR(15)
-    );
+    -- Esquema de base de datos MongoDB
+    -- Colección: clientes
+    {
+      "_id": ObjectId("..."), 
+      "nombre": "Carlos Gómez", 
+      "email": "carlos@example.com", 
+      "telefono": "987654321"
+    }
 
-    -- Tabla: pedidos
-    CREATE TABLE pedidos (
-        id_pedido INT PRIMARY KEY,
-        id_cliente INT,
-        fecha DATE,
-        monto DECIMAL(10, 2),
-        FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente)
-    );
+    -- Colección: pedidos
+    {
+      "_id": ObjectId("..."), 
+      "id_cliente": ObjectId("..."), 
+      "fecha": "2024-11-01", 
+      "monto": 100.50
+    }
 
-    -- Relación: Un cliente puede tener muchos pedidos (uno a muchos)
+    -- Relación: Un cliente puede tener muchos pedidos (uno a muchos) a través de id_cliente
   `;
 
   // Verificar que la consulta esté presente
@@ -47,8 +46,8 @@ router.post('/consultar-db', async (req, res) => {
       {
         model: 'gpt-3.5-turbo',
         messages: [
-          { role: 'system', content: 'Eres un asistente que ayuda a generar consultas SQL basadas en esquemas de bases de datos.' },
-          { role: 'user', content: `Aquí está el esquema de mi base de datos: ${context} Y quiero que me ayudes a generar una consulta SQL para esta pregunta: ${query}` }
+          { role: 'system', content: 'Eres un asistente que ayuda a generar consultas para bases de datos MongoDB.' },
+          { role: 'user', content: `Aquí está el esquema de mi base de datos MongoDB: ${context} Y quiero que me ayudes a generar una consulta para esta pregunta: ${query} devuelve unicamente la consulta sin nada mas, ningun texto solo la consulta ` }
         ],
         max_tokens: 200,
       },
@@ -60,10 +59,10 @@ router.post('/consultar-db', async (req, res) => {
       }
     );
 
-    // Obtener la respuesta de la API (solo la consulta SQL)
+    // Obtener la respuesta de la API (solo la consulta)
     const botReply = response.data.choices[0].message.content.trim();
 
-    // Enviar la respuesta de vuelta al cliente (solo la consulta SQL)
+    // Enviar la respuesta de vuelta al cliente
     res.json({ queryResult: botReply });
   } catch (err) {
     logger.error(err);

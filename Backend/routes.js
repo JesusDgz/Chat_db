@@ -42,7 +42,7 @@ router.post('/consultar-db', async (req, res) => {
   try {
     // Enviar la solicitud a la API de OpenAI (ChatGPT)
     const response = await axios.post(
-      'https://api.openai.com/v1/chat/completions',
+   
       {
         model: 'gpt-3.5-turbo',
         messages: [

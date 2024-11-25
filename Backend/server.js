@@ -2,12 +2,12 @@ const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
 const logger = require("./logger"); // Logger para registrar información
-const mongoose = require("mongoose"); // Usamos mongoose exclusivamente
+const mysql = require('mysql2');
 const { OpenAI } = require("openai");
 
 // Configuración de OpenAI
 const openai = new OpenAI({
-  apiKey: "sk-xgH1BbMNtXlXX0LdpPIkkNofsG9jYDb3dP2V5BtdbKT3BlbkFJ7iNuqwxKhNXUmPO-tqG--ediLO35-DBoP3VWpWqEEA", // Cambia por tu clave o usa .env
+  apiKey: "sk-zjJvXAueVDa8FgkOhRevhTCB2FfNSWfrU0sdRyxUaNT3BlbkFJtAeEw8cV-KJ2w7JI9RCtnQeBuZLWHBVebI616Ojh4A", // Cambia por tu clave o usa .env
 
 });
 
@@ -19,32 +19,17 @@ const app = express();
 app.use(cors()); // Permitir solicitudes de diferentes orígenes
 app.use(bodyParser.json()); // Parsear las solicitudes con cuerpo en formato JSON
 
-// URI de conexión a MongoDB Atlas (usa tu propia URI aquí)
-const uri = "mongodb+srv://cuyo0987654321:perrito12@cluster0.zom8p.mongodb.net/Cluster0?retryWrites=true&w=majority";
+const dbURI = 'mysql://root:wrtiLMMmpSzzcoosvOCvBaFseyIPqCET@junction.proxy.rlwy.net:13179/railway'
+const connection = mysql.createConnection(dbURI);
 
-// Conexión a MongoDB con mongoose
-mongoose
-  .connect(uri, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => {
-    logger.info("Conexión exitosa a MongoDB");
-    console.log("Conexión exitosa a MongoDB Atlas");
-  })
-  .catch((err) => {
-    logger.error("Error al conectar a MongoDB", err);
-    console.error("Error al conectar a MongoDB:", err);
-  });
-
-// Esquema y modelo de cliente
-const clienteSchema = new mongoose.Schema({
-  nombre: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  telefono: { type: String, required: true },
+// Conectar a la base de datos
+connection.connect((err) => {
+  if (err) {
+    console.error('Error al conectar a MySQL:', err);
+  } else {
+    console.log('Conectado a MySQL');
+  }
 });
-
-const Cliente = mongoose.model("Cliente", clienteSchema);
 
 // Ruta principal
 app.get("/", (req, res) => {
@@ -217,36 +202,137 @@ app.post("/api/clientes", async (req, res) => {
     return res.status(400).json({ error: "Todos los campos son requeridos." });
   }
 
-  try {
-    const nuevoCliente = new Cliente({ nombre, email, telefono });
-    await nuevoCliente.save();
-    res.status(201).json({ message: "Cliente creado exitosamente", cliente: nuevoCliente });
-  } catch (err) {
-    if (err.code === 11000) {
-      res.status(400).json({ error: "El email ya está registrado." });
-    } else {
-      res.status(500).json({ error: "Hubo un error al guardar el cliente." });
+  const query = `INSERT INTO clientes (nombre, email, telefono) VALUES (?, ?, ?)`;
+
+  connection.query(query, [nombre, email, telefono], (err, result) => {
+    if (err) {
+      console.error("Error al agregar cliente:", err);
+      return res.status(500).json({ error: "Hubo un error al guardar el cliente." });
     }
-  }
+
+    res.status(201).json({ message: "Cliente creado exitosamente", clienteId: result.insertId });
+  });
 });
 
 // Ruta para obtener todos los clientes
-app.get("/api/clientes", async (req, res) => {
-  try {
-    const clientes = await Cliente.find();
+app.get("/api/clientes", (req, res) => {
+  const query = "SELECT * FROM clientes";
+
+  connection.query(query, (err, clientes) => {
+    if (err) {
+      console.error("Error al obtener clientes:", err);
+      return res.status(500).json({ error: "Hubo un error al obtener los clientes." });
+    }
+
     if (clientes.length === 0) {
       return res.status(404).json({ message: "No se encontraron clientes." });
     }
+
     res.status(200).json({ clientes });
+  });
+});
+
+app.post("/api/chat/consul", async (req, res) => {
+  logger.info("llego aqui");
+
+  const { message } = req.body;
+
+  if (!message || typeof message !== "string") {
+    return res.status(400).json({ error: "El mensaje debe ser un texto válido." });
+  }
+
+  try {
+    // Enviar el mensaje a la API de OpenAI para analizarlo
+    const response = await openai.chat.completions.create({
+      model: "gpt-4", // Asegúrate de que el modelo esté disponible
+      messages: [
+        {
+          role: "system",
+          content: `
+          Mis tablas son: 
+          CREATE TABLE pedidos (
+            id_pedido INT AUTO_INCREMENT PRIMARY KEY,      -- Identificador único del pedido
+            id_cliente INT,                                -- ID del cliente relacionado (clave foránea)
+            fecha_pedido DATETIME DEFAULT CURRENT_TIMESTAMP, -- Fecha del pedido
+            monto DECIMAL(10, 2) NOT NULL,                 -- Monto total del pedido
+            estado ENUM('pendiente', 'entregado', 'cancelado') NOT NULL, -- Estado del pedido
+        );
+        CREATE TABLE clientes (
+          id_cliente INT AUTO_INCREMENT PRIMARY KEY,    -- Identificador único de cliente
+          nombre VARCHAR(100) NOT NULL,                  -- Nombre del cliente
+          email VARCHAR(100) NOT NULL UNIQUE,            -- Correo electrónico del cliente
+          telefono VARCHAR(15),                          -- Número de teléfono del cliente
+          direccion VARCHAR(255),                        -- Dirección de envío del cliente
+          fecha_registro DATETIME DEFAULT CURRENT_TIMESTAMP -- Fecha en que el cliente se registró
+      );
+
+            Eres un asistente que ayuda a generar consultas SQL para una base de datos de clientes.
+            El usuario te enviará un mensaje con una descripción, y tú deberás devolver la consulta SQL necesaria para encontrar los registros que coincidan con los criterios.
+            Los datos en la base de datos incluyen: id_cliente, nombre, email, telefono.
+            Responde con un formato JSON con la consulta necesario para llevar a cabo lo que se te pide, basandote en las tablas anteriores
+
+            Formato de respuesta: 
+            query
+            params
+          
+            Por ejemplo:
+            - Si el mensaje es "Dame el usuario con el teléfono 6251480821", la respuesta debería ser:
+              { Select from cliente where telefono = "6251480821"}
+          `,
+        },
+        { role: "user", content: message },
+      ],
+      max_tokens: 1000,
+    });
+
+    const botResponse = response.choices[0].message.content;
+
+    // Intentar parsear la respuesta como JSON
+    let parsedResponse;
+    try {
+      parsedResponse = JSON.parse(botResponse);
+      logger.info("Respuesta de OpenAI:", parsedResponse);
+    } catch (err) {
+      logger.error("Error al parsear la respuesta de OpenAI:", err);
+      return res.status(500).json({ error: "Respuesta inválida de OpenAI." });
+    }
+
+    query = parsedResponse.query
+
+    // Realizar la consulta a MySQL
+    connection.query(query, (err, clientes) => {
+      logger.info('query',query)
+
+      if (err) {
+        logger.error("Error al realizar consulta:", err);
+        return res.status(500).json({ error: "Error al realizar la consulta." });
+      }
+
+      if (clientes.length === 0) {
+        return res.status(404).json({ message: "No se encontraron clientes que coincidan con la consulta." });
+      }
+
+      // Respuesta exitosa con los resultados de la consulta
+      return res.status(200).json({
+        message: "Consulta realizada exitosamente.",
+        clientes,
+      });
+    });
   } catch (err) {
-    logger.error("Error al obtener clientes", err);
-    res.status(500).json({ error: "Hubo un error al obtener los clientes." });
+    logger.error("Error al interactuar con OpenAI:", err);
+    res.status(500).json({ error: "Error al procesar la solicitud." });
   }
 });
+
+
+
+
+
+
+
 
 // Iniciar el servidor
 const port = 5000;
 app.listen(port, () => {
   logger.info(`Servidor corriendo en http://localhost:${port}`);
-  console.log(`Servidor corriendo en http://localhost:${port}`);
 });

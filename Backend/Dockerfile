@@ -9,6 +9,7 @@ COPY package.json .
 
 # Instalar las dependencias
 RUN npm install
+RUN npm install -g nodemon
 
 # Copiar el código fuente del Backend
 COPY / .

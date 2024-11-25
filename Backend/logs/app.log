@@ -1,14 +1,4 @@
-{"level":"info","message":"Servidor corriendo en http://localhost:5000","timestamp":"2024-11-23T16:09:49.398Z"}
-{"level":"info","message":"Conectado a MongoDB","timestamp":"2024-11-23T16:09:49.414Z"}
-{"level":"info","message":"Servidor corriendo en http://localhost:5000","timestamp":"2024-11-23T16:12:34.934Z"}
-{"level":"info","message":"Conectado a MongoDB","timestamp":"2024-11-23T16:12:34.952Z"}
-{"level":"info","message":"Servidor corriendo en http://localhost:5000","timestamp":"2024-11-23T16:25:39.155Z"}
-{"level":"info","message":"Conectado a MongoDB","timestamp":"2024-11-23T16:25:39.181Z"}
-{"level":"info","message":"Servidor corriendo en http://localhost:5000","timestamp":"2024-11-23T16:27:00.509Z"}
-{"level":"info","message":"Conectado a MongoDB","timestamp":"2024-11-23T16:27:00.531Z"}
-{"level":"info","message":"Servidor corriendo en http://localhost:5000","timestamp":"2024-11-23T16:27:26.093Z"}
-{"level":"info","message":"Conectado a MongoDB","timestamp":"2024-11-23T16:27:26.111Z"}
-{"level":"info","message":"Servidor corriendo en http://localhost:5000","timestamp":"2024-11-23T16:27:29.915Z"}
-{"level":"info","message":"Conectado a MongoDB","timestamp":"2024-11-23T16:27:29.937Z"}
-{"level":"info","message":"Servidor corriendo en http://localhost:5000","timestamp":"2024-11-23T16:28:29.386Z"}
-{"level":"info","message":"Conectado a MongoDB","timestamp":"2024-11-23T16:28:29.404Z"}
+{"level":"info","message":"llego aq1ui","timestamp":"2024-11-24T05:28:16.424Z"}
+{"_message":"Cliente validation failed","errors":{"email":{"kind":"required","message":"Path `email` is required.","name":"ValidatorError","path":"email","properties":{"message":"Path `email` is required.","path":"email","type":"required"}},"telefono":{"kind":"required","message":"Path `telefono` is required.","name":"ValidatorError","path":"telefono","properties":{"message":"Path `telefono` is required.","path":"telefono","type":"required"}}},"level":"error","message":"Error al agregar cliente: Cliente validation failed: telefono: Path `telefono` is required., email: Path `email` is required.","stack":"ValidationError: Cliente validation failed: telefono: Path `telefono` is required., email: Path `email` is required.\n    at Document.invalidate (C:\\Users\\DELL\\Desktop\\Personal\\Chat_db\\Backend\\node_modules\\mongoose\\lib\\document.js:3318:32)\n    at C:\\Users\\DELL\\Desktop\\Personal\\Chat_db\\Backend\\node_modules\\mongoose\\lib\\document.js:3079:17\n    at C:\\Users\\DELL\\Desktop\\Personal\\Chat_db\\Backend\\node_modules\\mongoose\\lib\\schemaType.js:1388:9\n    at process.processTicksAndRejections (node:internal/process/task_queues:77:11)","timestamp":"2024-11-24T05:28:17.433Z"}
+{"level":"info","message":"llego aq1ui","timestamp":"2024-11-24T05:28:46.736Z"}
+{"level":"info","message":"llego aq1ui","timestamp":"2024-11-24T05:31:07.422Z"}

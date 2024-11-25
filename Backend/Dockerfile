@@ -5,13 +5,14 @@ FROM node:16
 WORKDIR /app
 
 # Copiar el package.json para instalar las dependencias
-COPY Backend/package.json .
+COPY package.json .
 
 # Instalar las dependencias
 RUN npm install
+RUN npm install -g nodemon
 
 # Copiar el código fuente del Backend
-COPY Backend/ .
+COPY / .
 
 # Exponer el puerto en el que tu aplicación backend escuchará
 EXPOSE 3000

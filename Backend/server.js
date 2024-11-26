@@ -7,7 +7,7 @@ const { OpenAI } = require("openai");
 
 // Configuración de OpenAI
 const openai = new OpenAI({
-  apiKey: "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", // Cambia por tu clave o usa .env
+  apiKey: "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", // Cambia por tu clave o usa .env
 
 });
 
@@ -270,7 +270,8 @@ app.post("/api/chat/consul", async (req, res) => {
             El usuario te enviará un mensaje con una descripción, y tú deberás devolver la consulta SQL necesaria para encontrar los registros que coincidan con los criterios.
             Los datos en la base de datos incluyen: id_cliente, nombre, email, telefono.
             Responde con un formato JSON con la consulta necesario para llevar a cabo lo que se te pide, basandote en las tablas anteriores,
-            ademas cuando se te pida quien es el cliente con mas pedidos por ejemplo necesito el nombre de ese cliente 
+            ademas cuando se te pida quien es el cliente con mas pedidos por ejemplo necesito el nombre de ese cliente o del pedido igual, siempre tienes
+            que mostrar el nombre del cliente en vez del id
 
             Formato de respuesta: 
             query

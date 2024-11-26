@@ -1,21 +1,29 @@
-# Usar una imagen base de Node.js
-FROM node:16
+# Usar una imagen base de Node.js para construir el proyecto
+FROM node:16 AS build
 
 # Establecer el directorio de trabajo en el contenedor
 WORKDIR /app
 
-# Copiar el package.json para instalar las dependencias
-COPY package.json .
+# Copiar los archivos necesarios para instalar dependencias y compilar
+COPY package.json package-lock.json ./
 
-# Instalar las dependencias
+# Instalar dependencias
 RUN npm install
-RUN npm install -g nodemon
 
-# Copiar el código fuente del Backend
-COPY / .
+# Copiar todo el código fuente
+COPY . .
 
-# Exponer el puerto en el que tu aplicación backend escuchará
-EXPOSE 3000
+# Compilar el proyecto (genera la carpeta 'build')
+RUN npm run build
 
-# Comando para iniciar la aplicación
-CMD ["npm", "start"]
+# Fase final: Usar una imagen más liviana para servir el contenido estático
+FROM nginx:alpine
+
+# Copiar los archivos de la carpeta 'build' generados en la fase de construcción
+COPY --from=build /app/build /usr/share/nginx/html
+
+# Exponer el puerto en el que el servidor web estará escuchando
+EXPOSE 80
+
+# Iniciar NGINX
+CMD ["nginx", "-g", "daemon off;"]

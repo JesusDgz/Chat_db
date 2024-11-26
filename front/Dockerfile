@@ -17,4 +17,4 @@ COPY . .
 EXPOSE 3000
 
 # Comando para iniciar la aplicación en modo desarrollo
-CMD ["craco", "start"]
+CMD ["npm", "start"]

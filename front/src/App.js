@@ -1,6 +1,7 @@
 import React from "react";
 import Table from "./components/Table";
 import Chat from "./components/Chat";
+import AudioConsulta from "./components/AudioConsulta";
 
 const App = () => {
   return (
@@ -10,6 +11,9 @@ const App = () => {
       </div>
       <div style={{ flex: 2 }}>
         <Chat />
+      </div>
+      <div style={{ flex: 3 }}>
+        <AudioConsulta />
       </div>
     </div>
   );

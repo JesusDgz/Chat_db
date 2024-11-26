@@ -7,7 +7,7 @@ const { OpenAI } = require("openai");
 
 // Configuración de OpenAI
 const openai = new OpenAI({
-  apiKey: "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", // Cambia por tu clave o usa .env
+  apiKey: "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", // Cambia por tu clave o usa .env
 
 });
 

@@ -2,20 +2,19 @@ import React, { useState } from "react";
 import axios from "axios";
 
 const AudioUploader = () => {
-  const [audioFile, setAudioFile] = useState(null); // Estado para el archivo de audio
-  const [isUploading, setIsUploading] = useState(false); // Estado para indicar si está subiendo
-  const [uploadSuccess, setUploadSuccess] = useState(false); // Estado para indicar si fue exitoso
+  const [audioFile, setAudioFile] = useState(null); 
+  const [isUploading, setIsUploading] = useState(false); 
+  const [uploadSuccess, setUploadSuccess] = useState(false); 
 
-  // Manejar el cambio en el input
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
-      setAudioFile(file); // Guardar el archivo seleccionado
-      setUploadSuccess(false); // Resetear éxito en nuevas cargas
+      setAudioFile(file); 
+      setUploadSuccess(false);
     }
   };
 
-  // Enviar el archivo a la API
+  
   const handleUpload = async () => {
     if (!audioFile) {
       alert("Por favor selecciona un archivo de audio.");
@@ -28,7 +27,7 @@ const AudioUploader = () => {
     try {
       setIsUploading(true);
       const response = await axios.post(
-        "http://localhost:5000/api/chat/consul", // Cambia esta URL según tu backend
+        "http://localhost:5000/api/chat/consul/chat/audio", 
         formData,
         {
           headers: {
